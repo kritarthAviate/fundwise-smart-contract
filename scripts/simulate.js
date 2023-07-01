@@ -22,7 +22,10 @@ async function main() {
     AAVE_ATOKEN_ADDRESS,
     LENDING_POOL_PROVIDER_ADDRESS
   );
-  const crowdfundingWithEthAddress = await crowdfundingWithEth.getAddress();
+  await crowdfundingWithEth.deployed();
+
+  const crowdfundingWithEthAddress = crowdfundingWithEth.address
+
   console.log({
     crowdfundingWithEth: crowdfundingWithEthAddress,
     deployer: deployer.address,
@@ -36,11 +39,10 @@ async function main() {
     crowdfundingWithEthAddress
   );
 
-  const crowdfundingFactoryContractAddress =
-    await crowdfundingFactoryContract.getAddress();
+  await crowdfundingFactoryContract.deployed();
 
   console.log({
-    crowdfundingFactoryContract: crowdfundingFactoryContractAddress,
+    crowdfundingFactoryContract: crowdfundingFactoryContract.address,
   });
 
   const txnForEthProxy = await crowdfundingFactoryContract.createFund(

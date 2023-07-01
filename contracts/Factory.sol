@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+import "./fundWithEther/Implementation.sol";
+import "./MinimalProxy.sol";
+
+contract CrowdfundingFactoryContract is Ownable {
+    using Clones for address;
+
+    address public fundWithEtherImplementationAddress;
+    address public fundWithTokenImplementationAddress;
+
+    event FundCreated(
+        address indexed proxyAddress,
+        address indexed ownerAddress,
+        uint256 createdAt,
+        uint256 targetAmount,
+        uint8 typeOfFunding
+    );
+
+    constructor(address _fundWithEtherImplementationAddress) {
+        fundWithEtherImplementationAddress = _fundWithEtherImplementationAddress;
+    }
+ 
+    function createFund(uint8 _typeOfFunding, uint256 _targetAmount, string memory _ipfsLink) public returns (address) {
+        require(_typeOfFunding == 1 || _typeOfFunding == 2, "Invalid type of funding");
+        address templateAddress;
+        if(_typeOfFunding == 1) {
+            templateAddress = fundWithEtherImplementationAddress;
+        } else{
+            templateAddress = fundWithTokenImplementationAddress;
+        }
+        address payable proxy = payable(templateAddress.clone());
+        Crowdfunding(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
+        emit FundCreated(proxy, msg.sender, block.timestamp, _targetAmount, _typeOfFunding);
+        return proxy;
+    }
+
+    function updateTemplateAddresses(address _newImplementationAddress, uint8 _typeofFunding) public onlyOwner {
+        if(_typeofFunding == 1){
+          fundWithEtherImplementationAddress = _newImplementationAddress;
+        }
+        else if(_typeofFunding == 2){
+          fundWithTokenImplementationAddress = _newImplementationAddress;
+        }
+    }
+}

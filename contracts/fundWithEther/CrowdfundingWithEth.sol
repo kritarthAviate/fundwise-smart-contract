@@ -3,11 +3,13 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 
 import "./interfaces/IAaveV2.sol";
 import "./interfaces/ILendingPoolAddressesProvider.sol";
 
-contract Crowdfunding is Initializable {
+contract CrowdfundingWithEth is Initializable, Ownable {
     // Aave V2 interface for interacting with Aave protocol
     IAaveV2 private immutable iAaveV2;
     // Aave aToken interface for interacting with aToken

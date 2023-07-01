@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./fundWithEther/Implementation.sol";
+import "./fundWithEther/CrowdfundingWithEth.sol";
 import "./MinimalProxy.sol";
 
 contract CrowdfundingFactoryContract is Ownable {
@@ -27,16 +27,17 @@ contract CrowdfundingFactoryContract is Ownable {
  
     function createFund(uint8 _typeOfFunding, uint256 _targetAmount, string memory _ipfsLink) public returns (address) {
         require(_typeOfFunding == 1 || _typeOfFunding == 2, "Invalid type of funding");
-        address templateAddress;
         if(_typeOfFunding == 1) {
-            templateAddress = fundWithEtherImplementationAddress;
+            address payable proxy = payable(fundWithEtherImplementationAddress.clone());
+            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
+            emit FundCreated(proxy, msg.sender, block.timestamp, _targetAmount, _typeOfFunding);
+            return proxy;
         } else{
-            templateAddress = fundWithTokenImplementationAddress;
+            address payable proxy = payable(fundWithTokenImplementationAddress.clone());
+            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
+            emit FundCreated(proxy, msg.sender, block.timestamp, _targetAmount, _typeOfFunding);
+            return proxy;
         }
-        address payable proxy = payable(templateAddress.clone());
-        Crowdfunding(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
-        emit FundCreated(proxy, msg.sender, block.timestamp, _targetAmount, _typeOfFunding);
-        return proxy;
     }
 
     function updateTemplateAddresses(address _newImplementationAddress, uint8 _typeofFunding) public onlyOwner {

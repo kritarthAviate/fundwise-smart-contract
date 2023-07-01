@@ -17,18 +17,40 @@ async function main() {
   const CrowdfundingWithEthImplementation = await ethers.getContractFactory(
     "CrowdfundingWithEth"
   );
-  console.log({ CrowdfundingWithEthImplementation });
   const crowdfundingWithEth = await CrowdfundingWithEthImplementation.deploy(
     AAVE_V2_ADDRESS,
     AAVE_ATOKEN_ADDRESS,
     LENDING_POOL_PROVIDER_ADDRESS
   );
-  console.log({ crowdfundingWithEth });
-  await crowdfundingWithEth.deployed();
+  const crowdfundingWithEthAddress = await crowdfundingWithEth.getAddress();
   console.log({
-    crowdfundingWithEth: crowdfundingWithEth.address,
+    crowdfundingWithEth: crowdfundingWithEthAddress,
     deployer: deployer.address,
     owner: await crowdfundingWithEth.owner(),
+  });
+
+  const CrowdfundingFactoryContract = await ethers.getContractFactory(
+    "CrowdfundingFactoryContract"
+  );
+  const crowdfundingFactoryContract = await CrowdfundingFactoryContract.deploy(
+    crowdfundingWithEthAddress
+  );
+
+  const crowdfundingFactoryContractAddress =
+    await crowdfundingFactoryContract.getAddress();
+
+  console.log({
+    crowdfundingFactoryContract: crowdfundingFactoryContractAddress,
+  });
+
+  const txnForEthProxy = await crowdfundingFactoryContract.createFund(
+    1,
+    2,
+    "ipfs_Ka_Hash"
+  );
+  const receiptForEthProxy = await txnForEthProxy.wait();
+  console.log({
+    receiptForEthProxy,
   });
 }
 

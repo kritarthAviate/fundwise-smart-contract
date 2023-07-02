@@ -24,28 +24,27 @@ contract CrowdfundingFactoryContract is Ownable {
     constructor(address _fundWithEtherImplementationAddress) {
         fundWithEtherImplementationAddress = _fundWithEtherImplementationAddress;
     }
- 
+
     function createFund(uint8 _typeOfFunding, uint256 _targetAmount, string memory _ipfsLink) public returns (address) {
         require(_typeOfFunding == 1 || _typeOfFunding == 2, "Invalid type of funding");
-        if(_typeOfFunding == 1) {
+        if (_typeOfFunding == 1) {
             address payable proxy = payable(fundWithEtherImplementationAddress.clone());
-            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
-            emit FundCreated(proxy, msg.sender,_typeOfFunding, block.timestamp, _targetAmount );
+            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink, msg.sender);
+            emit FundCreated(proxy, msg.sender, _typeOfFunding, block.timestamp, _targetAmount);
             return proxy;
-        } else{
+        } else {
             address payable proxy = payable(fundWithTokenImplementationAddress.clone());
-            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink);
-            emit FundCreated(proxy, msg.sender,_typeOfFunding, block.timestamp, _targetAmount);
+            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink, msg.sender);
+            emit FundCreated(proxy, msg.sender, _typeOfFunding, block.timestamp, _targetAmount);
             return proxy;
         }
     }
 
     function updateTemplateAddresses(address _newImplementationAddress, uint8 _typeofFunding) public onlyOwner {
-        if(_typeofFunding == 1){
-          fundWithEtherImplementationAddress = _newImplementationAddress;
-        }
-        else if(_typeofFunding == 2){
-          fundWithTokenImplementationAddress = _newImplementationAddress;
+        if (_typeofFunding == 1) {
+            fundWithEtherImplementationAddress = _newImplementationAddress;
+        } else if (_typeofFunding == 2) {
+            fundWithTokenImplementationAddress = _newImplementationAddress;
         }
     }
 }

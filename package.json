@@ -4,7 +4,8 @@
     "main": "index.js",
     "license": "MIT",
     "scripts": {
-        "prettier": "prettier --write '*/*'"
+        "prettier": "prettier --write '*/*'",
+        "simulate:hardhat": "npx hardhat run --network hardhat scripts/simulate.js"
     },
     "devDependencies": {
         "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",

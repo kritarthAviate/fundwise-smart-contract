@@ -10,23 +10,28 @@ const ProxyContractABI =
     require("../artifacts/contracts/fundWithEther/CrowdfundingWithEth.sol/CrowdfundingWithEth.json").abi;
 
 async function main() {
+    console.log("------Simulating deployment of CrowdfundingWithEth and CrowdfundingFactoryContract------");
     const { AAVE_V2_ADDRESS, AAVE_ATOKEN_ADDRESS, LENDING_POOL_PROVIDER_ADDRESS } = network.config.constants;
-    const [deployer] = await ethers.getSigners();
+    const [deployer, signer1, signer2] = await ethers.getSigners();
+    console.log({
+        deployer: deployer.address,
+        signer1: signer1.address,
+        signer2: signer2.address,
+    });
 
     const CrowdfundingWithEthImplementation = await ethers.getContractFactory("CrowdfundingWithEth");
-    const crowdfundingWithEth = await CrowdfundingWithEthImplementation.deploy(
+    const crowdfundingWithEthImplementation = await CrowdfundingWithEthImplementation.deploy(
         AAVE_V2_ADDRESS,
         AAVE_ATOKEN_ADDRESS,
         LENDING_POOL_PROVIDER_ADDRESS
     );
-    await crowdfundingWithEth.deployed();
+    await crowdfundingWithEthImplementation.deployed();
 
-    const crowdfundingWithEthAddress = crowdfundingWithEth.address;
+    const crowdfundingWithEthAddress = crowdfundingWithEthImplementation.address;
 
     console.log({
-        crowdfundingWithEth: crowdfundingWithEthAddress,
-        deployer: deployer.address,
-        owner: await crowdfundingWithEth.owner(),
+        crowdfundingWithEthImplementation: crowdfundingWithEthAddress,
+        ownerOfImplementation: await crowdfundingWithEthImplementation.owner(),
     });
 
     const CrowdfundingFactoryContract = await ethers.getContractFactory("CrowdfundingFactoryContract");
@@ -38,14 +43,16 @@ async function main() {
         crowdfundingFactoryContract: crowdfundingFactoryContract.address,
     });
 
-    const txnForEthProxy = await crowdfundingFactoryContract.createFund(1, 2, "ipfs_Ka_Hash");
+    const txnForEthProxy = await crowdfundingFactoryContract
+        .connect(signer1)
+        .createFund(1, 2, "ipfs_Ka_Hash", signer2.address);
     const receiptForEthProxy = await txnForEthProxy.wait();
     const proxyAddress = getProxyAddress(receiptForEthProxy);
-    console.log({ proxyAddress });
     const proxyContract = new ethers.Contract(proxyAddress, ProxyContractABI, deployer);
     console.log({
         proxyAddress: proxyContract.address,
-        owner: await proxyContract.owner(),
+        owner: await proxyContract.creatorAddress(),
+        beneficiary: await proxyContract.receiver(),
     });
 }
 

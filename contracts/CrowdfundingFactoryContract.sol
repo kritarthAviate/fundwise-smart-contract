@@ -16,7 +16,8 @@ contract CrowdfundingFactoryContract is Ownable {
     event FundCreated(
         address indexed proxyAddress,
         address indexed ownerAddress,
-        uint8 indexed typeOfFunding,
+        address indexed receiver,
+        uint8 typeOfFunding,
         uint256 createdAt,
         uint256 targetAmount
     );
@@ -25,17 +26,22 @@ contract CrowdfundingFactoryContract is Ownable {
         fundWithEtherImplementationAddress = _fundWithEtherImplementationAddress;
     }
 
-    function createFund(uint8 _typeOfFunding, uint256 _targetAmount, string memory _ipfsLink) public returns (address) {
+    function createFund(
+        uint8 _typeOfFunding,
+        uint256 _targetAmount,
+        string memory _ipfsLink,
+        address _receiver
+    ) public returns (address) {
         require(_typeOfFunding == 1 || _typeOfFunding == 2, "Invalid type of funding");
         if (_typeOfFunding == 1) {
             address payable proxy = payable(fundWithEtherImplementationAddress.clone());
-            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink, msg.sender);
-            emit FundCreated(proxy, msg.sender, _typeOfFunding, block.timestamp, _targetAmount);
+            CrowdfundingWithEth(proxy).initialize(_receiver, _targetAmount, _ipfsLink, msg.sender);
+            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount);
             return proxy;
         } else {
             address payable proxy = payable(fundWithTokenImplementationAddress.clone());
-            CrowdfundingWithEth(proxy).initialize(msg.sender, _targetAmount, _ipfsLink, msg.sender);
-            emit FundCreated(proxy, msg.sender, _typeOfFunding, block.timestamp, _targetAmount);
+            CrowdfundingWithEth(proxy).initialize(_receiver, _targetAmount, _ipfsLink, msg.sender);
+            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount);
             return proxy;
         }
     }

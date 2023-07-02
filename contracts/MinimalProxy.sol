@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 contract MinimalProxy {
     address public logicContract;
 
     constructor(address _logicContract) {
         logicContract = _logicContract;
     }
-  
+
     fallback() external payable {
         address target = logicContract;
         assembly {

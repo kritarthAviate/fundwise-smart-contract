@@ -79,6 +79,9 @@ async function main() {
         .connect(signer7)
         .contribute({ value: ethers.utils.parseEther("80") });
 
+    // to increase block time by 1000 seconds since 0x3e8 = 1000 and 0x3c = 60 seconds in hex
+    await network.provider.send("hardhat_mine", ["0x3e8", "0x3c"]);
+
     // init aave aToken contract
     const aTokenContract = new ethers.Contract(AAVE_ATOKEN_ADDRESS, IERC20ABI, deployer);
     // get aave aToken balance of proxy contract

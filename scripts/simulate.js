@@ -101,7 +101,7 @@ async function main() {
     console.log({ signer2BalanceAfter: ethers.utils.formatEther(signer2BalanceAfter.toString()) });
 
     // call totalCertificates to get total certificates issued
-    const totalCertificatesB4 = await proxyContract.getTotalCertificates();
+    const totalCertificatesB4 = await proxyContract.totalCertificates();
     console.log({ totalCertificates: totalCertificatesB4.toString() });
 
     // call claimCertificate from signer7 to get certificate
@@ -116,7 +116,7 @@ async function main() {
     console.log({ tokenURI, tokenURIJSON });
 
     // call totalCertificates to get total certificates issued
-    const totalCertificates = await proxyContract.getTotalCertificates();
+    const totalCertificates = await proxyContract.totalCertificates();
     console.log({ totalCertificates: totalCertificates.toString() });
 }
 

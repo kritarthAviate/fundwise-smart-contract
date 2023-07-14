@@ -36,7 +36,7 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
 
     mapping(address => uint256) public contributions;
     mapping(address => bool) public certificateClaimed;
-    uint256 private totalCertificates;
+    uint256 public totalCertificates;
 
     event Contribute(address indexed contributor, uint256 amount);
     event WithdrawContributions(address indexed contributor, uint256 amount);
@@ -146,10 +146,6 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         _setTokenMetadata(tokenId, contributions[msg.sender]);
 
         totalCertificates++;
-    }
-
-    function getTotalCertificates() external view returns (uint256) {
-        return totalCertificates;
     }
 
     function _setTokenMetadata(uint256 tokenId, uint256 contribution) internal {

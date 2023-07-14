@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 import "./interfaces/IAaveV2.sol";
 import "./interfaces/ILendingPoolAddressesProvider.sol";
 
-contract CrowdfundingWithEth is Initializable, Ownable, ERC721 {
+contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
     using Strings for uint256;
 
     // Aave V2 interface for interacting with Aave protocol

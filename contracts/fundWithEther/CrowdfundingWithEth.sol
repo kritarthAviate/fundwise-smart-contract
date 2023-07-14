@@ -132,6 +132,7 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
     }
 
     function claimCertificate() external {
+        require(contributions[msg.sender] > 0, "No contributions made");
         require(projectStatus == Status.COMPLETED, "Project status is not completed");
         require(!certificateClaimed[msg.sender], "Certificate has already been claimed");
 

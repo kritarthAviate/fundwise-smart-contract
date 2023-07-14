@@ -147,6 +147,10 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         totalCertificates++;
     }
 
+    function getTotalCertificates() external view returns (uint256) {
+        return totalCertificates;
+    }
+
     function _setTokenMetadata(uint256 tokenId, uint256 contribution) internal {
         string memory metadata = string(
             abi.encodePacked(

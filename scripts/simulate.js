@@ -99,6 +99,25 @@ async function main() {
     const txnForWithdrawal = await proxyContract.connect(signer2).withdrawFunds();
     const signer2BalanceAfter = await signer2.getBalance();
     console.log({ signer2BalanceAfter: ethers.utils.formatEther(signer2BalanceAfter.toString()) });
+
+    // call totalCertificates to get total certificates issued
+    const totalCertificatesB4 = await proxyContract.getTotalCertificates();
+    console.log({ totalCertificates: totalCertificatesB4.toString() });
+
+    // call claimCertificate from signer7 to get certificate
+    const txnForClaimingCertificate = await proxyContract.connect(signer7).claimCertificate();
+
+    const certificateId = totalCertificatesB4.add(1);
+
+    // Retrieve the token URI of the certificate
+    const tokenURI = await proxyContract.tokenURI(certificateId);
+    // convert the tokenURI from string to JSON
+    const tokenURIJSON = JSON.parse(tokenURI);
+    console.log({ tokenURI, tokenURIJSON });
+
+    // call totalCertificates to get total certificates issued
+    const totalCertificates = await proxyContract.getTotalCertificates();
+    console.log({ totalCertificates: totalCertificates.toString() });
 }
 
 // We recommend this pattern to be able to use async/await everywhere

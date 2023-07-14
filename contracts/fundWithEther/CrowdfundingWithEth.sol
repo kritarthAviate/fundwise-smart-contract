@@ -4,11 +4,15 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./interfaces/IAaveV2.sol";
 import "./interfaces/ILendingPoolAddressesProvider.sol";
 
-contract CrowdfundingWithEth is Initializable, Ownable {
+contract CrowdfundingWithEth is Initializable, Ownable, ERC721 {
+    using Strings for uint256;
+
     // Aave V2 interface for interacting with Aave protocol
     IAaveV2 private immutable iAaveV2;
     // Aave aToken interface for interacting with aToken
@@ -32,6 +36,8 @@ contract CrowdfundingWithEth is Initializable, Ownable {
     }
 
     mapping(address => uint256) public contributions;
+    mapping(address => bool) public certificateClaimed;
+    uint256 private totalCertificates;
 
     event Contribute(address indexed contributor, uint256 amount);
     event WithdrawContributions(address indexed contributor, uint256 amount);
@@ -39,7 +45,11 @@ contract CrowdfundingWithEth is Initializable, Ownable {
     event ProjectCompleted(address indexed proxyAddress, address indexed receiver, uint256 timestamp);
     event ProjectInvalidated(address indexed proxyAddress, uint256 timestamp, uint8 invalidatorType);
 
-    constructor(address _AAVE_V2_ADDRESS, address _AAVE_ATOKEN_ADDRESS, address _LENDING_POOL_PROVIDER_ADDRESS) {
+    constructor(
+        address _AAVE_V2_ADDRESS,
+        address _AAVE_ATOKEN_ADDRESS,
+        address _LENDING_POOL_PROVIDER_ADDRESS
+    ) ERC721("Participation Certificate", "CERT") {
         iAaveV2 = IAaveV2(_AAVE_V2_ADDRESS);
         iAToken = IERC20(_AAVE_ATOKEN_ADDRESS);
         lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_LENDING_POOL_PROVIDER_ADDRESS);
@@ -120,6 +130,57 @@ contract CrowdfundingWithEth is Initializable, Ownable {
         }
 
         emit ProjectInvalidated(address(this), block.timestamp, invalidatorType);
+    }
+
+    function claimCertificate() external {
+        require(projectStatus == Status.COMPLETED, "Project status is not completed");
+        require(!certificateClaimed[msg.sender], "Certificate has already been claimed");
+
+        certificateClaimed[msg.sender] = true;
+
+        uint256 tokenId = totalCertificates + 1;
+
+        _safeMint(msg.sender, tokenId);
+
+        // Set the token metadata
+        _setTokenMetadata(tokenId, contributions[msg.sender]);
+
+        totalCertificates++;
+    }
+
+    function _setTokenMetadata(uint256 tokenId, uint256 contribution) internal {
+        string memory metadata = string(
+            abi.encodePacked(
+                '{"name": "Participation Certificate #',
+                tokenId.toString(),
+                '", "description": "Certificate of participation for the crowdfunding project", "attributes": [{"trait_type": "Receiver", "value": "',
+                _toString(receiver),
+                '"}, {"trait_type": "Target Amount", "value": "',
+                targetAmount.toString(),
+                '"}, {"trait_type": "IPFS Link", "value": "',
+                ipfsLink,
+                '"}, {"trait_type": "Contribution", "value": "',
+                contribution.toString(),
+                '"}]}'
+            )
+        );
+
+        _setTokenURI(tokenId, metadata);
+    }
+
+    function _toString(address _address) internal pure returns (string memory) {
+        bytes32 value = bytes32(uint256(uint160(_address)));
+        bytes memory alphabet = "0123456789abcdef";
+
+        bytes memory str = new bytes(42);
+        str[0] = "0";
+        str[1] = "x";
+        for (uint256 i = 0; i < 20; i++) {
+            str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
+        }
+
+        return string(str);
     }
 
     function getLendingPoolAddress() private view returns (address) {

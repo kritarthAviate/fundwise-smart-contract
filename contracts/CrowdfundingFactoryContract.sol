@@ -19,7 +19,8 @@ contract CrowdfundingFactoryContract is Ownable {
         address indexed receiver,
         uint8 typeOfFunding,
         uint256 createdAt,
-        uint256 targetAmount
+        uint256 targetAmount,
+        string ipfsLink
     );
 
     constructor(address _fundWithEtherImplementationAddress) {
@@ -36,12 +37,12 @@ contract CrowdfundingFactoryContract is Ownable {
         if (_typeOfFunding == 1) {
             address payable proxy = payable(fundWithEtherImplementationAddress.clone());
             CrowdfundingWithEth(proxy).initialize(_receiver, _targetAmount, _ipfsLink, msg.sender);
-            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount);
+            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount, _ipfsLink);
             return proxy;
         } else {
             address payable proxy = payable(fundWithTokenImplementationAddress.clone());
             CrowdfundingWithEth(proxy).initialize(_receiver, _targetAmount, _ipfsLink, msg.sender);
-            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount);
+            emit FundCreated(proxy, msg.sender, _receiver, _typeOfFunding, block.timestamp, _targetAmount, _ipfsLink);
             return proxy;
         }
     }

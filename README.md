@@ -1,4 +1,4 @@
-# CrowdfundingWithEth Smart Contract
+# FundWise Smart Contract - Crowdfunding
 
 The CrowdfundingWithEth smart contract is a decentralized crowdfunding contract that allows users to create and participate in crowdfunding campaigns using Ether (ETH).
 
@@ -26,3 +26,6 @@ The contract is deployed on the network with the following initial parameters:
 1. LENDING_POOL_PROVIDER_ADDRESS: Aave Lending Pool provider contract address.
 2. AAVE_V2_ADDRESS: Aave V2 contract address.
 3. AAVE_ATOKEN_ADDRESS: Aave aToken contract address.
+
+## Future scope
+1. Add another type of crowdfunding contract which allows users to create a fundraiser using stable coins.

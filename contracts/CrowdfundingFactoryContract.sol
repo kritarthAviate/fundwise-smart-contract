@@ -7,6 +7,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./fundWithEther/CrowdfundingWithEth.sol";
 import "./MinimalProxy.sol";
 
+/**
+ * @title CrowdfundingFactoryContract
+ * @notice Factory contract for creating crowdfunding campaigns.
+ */
 contract CrowdfundingFactoryContract is Ownable {
     using Clones for address;
 
@@ -27,6 +31,14 @@ contract CrowdfundingFactoryContract is Ownable {
         fundWithEtherImplementationAddress = _fundWithEtherImplementationAddress;
     }
 
+    /**
+     * @notice Creates a new crowdfunding campaign.
+     * @param _typeOfFunding The type of funding (1 for ETH, 2 for Token).
+     * @param _targetAmount The target amount to be raised.
+     * @param _ipfsLink The IPFS link associated with the campaign details.
+     * @param _receiver The address of the receiver or beneficiary of the raised funds.
+     * @return The address of the newly created crowdfunding campaign.
+     */
     function createFund(
         uint8 _typeOfFunding,
         uint256 _targetAmount,
@@ -47,6 +59,11 @@ contract CrowdfundingFactoryContract is Ownable {
         }
     }
 
+    /**
+     * @notice Updates the addresses of the crowdfunding templates.
+     * @param _newImplementationAddress The new address of the template contract.
+     * @param _typeofFunding The type of funding (1 for ETH, 2 for Token).
+     */
     function updateTemplateAddresses(address _newImplementationAddress, uint8 _typeofFunding) public onlyOwner {
         if (_typeofFunding == 1) {
             fundWithEtherImplementationAddress = _newImplementationAddress;

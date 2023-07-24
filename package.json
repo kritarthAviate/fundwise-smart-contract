@@ -5,7 +5,12 @@
     "license": "MIT",
     "scripts": {
         "prettier": "prettier --write '*/*'",
-        "simulate:hardhat": "npx hardhat run --network hardhat scripts/simulate.js"
+        "simulate:hardhat": "npx hardhat run --network hardhat scripts/simulate.js",
+        "test": "npx hardhat test",
+        "compile": "npx hardhat compile",
+        "deploy:goerli": "npx hardhat run --network goerli scripts/deploy.js",
+        "deploy:mainet": "npx hardhat run --network mainnet scripts/deploy.js",
+        "deploy:polygon": "npx hardhat run --network polygon scripts/deploy.js"
     },
     "devDependencies": {
         "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",

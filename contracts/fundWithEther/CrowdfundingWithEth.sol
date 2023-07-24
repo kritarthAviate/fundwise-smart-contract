@@ -9,17 +9,23 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "./interfaces/IAaveV2.sol";
 import "./interfaces/ILendingPoolAddressesProvider.sol";
 
+/**
+ * @title CrowdfundingWithEth
+ * @notice A contract for creating a crowdfunding campaign that accepts Ether contributions.
+ */
 contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
     using Strings for uint256;
 
-    // Aave V2 interface for interacting with Aave protocol
+    // Aave V2 interface for interacting with the Aave protocol
     IAaveV2 private immutable iAaveV2;
-    // Aave aToken interface for interacting with aToken
+    
+    // Aave aToken interface for interacting with the aToken
     IERC20 private immutable iAToken;
-    // LendingPoolAddressesProvider interface for getting LendingPool address
+    
+    // LendingPoolAddressesProvider interface for getting the LendingPool address
     ILendingPoolAddressesProvider private immutable lendingPoolAddressesProvider;
+    
     address immutable LENDING_POOL_ADDRESS;
-
     address public creatorAddress;
     address public receiver;
     uint256 public targetAmount;
@@ -55,9 +61,16 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         LENDING_POOL_ADDRESS = getLendingPoolAddress();
     }
 
+    /**
+     * @notice Initializes the crowdfunding campaign.
+     * @param _receiver The address of the receiver or beneficiary of the raised funds.
+     * @param _targetAmount The target amount to be raised in Ether.
+     * @param _ipfsLink The IPFS link associated with the campaign details.
+     * @param _creatorAddress The address of the creator who initiates the campaign.
+     */
     function initialize(
         address _receiver,
-        uint _targetAmount,
+        uint256 _targetAmount,
         string memory _ipfsLink,
         address _creatorAddress
     ) public initializer {
@@ -69,6 +82,9 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         creatorAddress = _creatorAddress;
     }
 
+    /**
+     * @notice Allows contributors to contribute Ether to the crowdfunding campaign.
+     */
     function contribute() external payable {
         require(projectStatus == Status.ONGOING, "Project status is not ongoing");
 
@@ -85,6 +101,9 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         emit Contribute(msg.sender, msg.value);
     }
 
+    /**
+     * @notice Allows contributors to withdraw their contributions if the project fails.
+     */
     function withdrawContributions() external {
         require(projectStatus == Status.FAILED, "Project status is not failed");
         require(contributions[msg.sender] > 0, "No contributions to withdraw");
@@ -100,6 +119,9 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         emit WithdrawContributions(msg.sender, amountToWithdraw);
     }
 
+    /**
+     * @notice Allows the receiver to withdraw the raised funds after the campaign is completed.
+     */
     function withdrawFunds() external {
         require(projectStatus == Status.COMPLETED, "Project status is not completed");
         require(msg.sender == receiver, "Only the receiver can withdraw funds");
@@ -113,6 +135,9 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         emit WithdrawFunds(msg.sender, amountRaised);
     }
 
+    /**
+     * @notice Allows the creator or owner to invalidate the project.
+     */
     function invalidateProject() external {
         require(
             msg.sender == creatorAddress || msg.sender == super.owner(),
@@ -131,6 +156,9 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         emit ProjectInvalidated(address(this), block.timestamp, invalidatorType);
     }
 
+    /**
+     * @notice Allows contributors to claim their participation certificates after the campaign is completed.
+     */
     function claimCertificate() external {
         require(contributions[msg.sender] > 0, "No contributions made");
         require(projectStatus == Status.COMPLETED, "Project status is not completed");
@@ -183,9 +211,16 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         return string(str);
     }
 
+    /**
+     * @notice Get the LendingPool address from the LendingPoolAddressesProvider contract.
+     * @return The address of the LendingPool.
+     */
     function getLendingPoolAddress() private view returns (address) {
         return lendingPoolAddressesProvider.getLendingPool();
     }
 
+    /**
+     * @notice Receive function to receive Ether when sending transactions to the contract without data.
+     */
     receive() external payable {}
 }

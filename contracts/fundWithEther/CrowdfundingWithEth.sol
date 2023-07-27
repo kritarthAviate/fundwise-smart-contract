@@ -49,6 +49,7 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
     event WithdrawFunds(address receiver, uint256 amount);
     event ProjectCompleted(address indexed proxyAddress, address indexed receiver, uint256 timestamp);
     event ProjectInvalidated(address indexed proxyAddress, uint256 timestamp, uint8 invalidatorType);
+    event CertificateClaimed(address indexed contributor, uint256 tokenId, uint256 contribution);
 
     constructor(
         address _AAVE_V2_ADDRESS,
@@ -174,6 +175,8 @@ contract CrowdfundingWithEth is Initializable, Ownable, ERC721URIStorage {
         _setTokenMetadata(tokenId, contributions[msg.sender]);
 
         totalCertificates++;
+
+        emit CertificateClaimed(msg.sender, tokenId, contributions[msg.sender]);
     }
 
     function _setTokenMetadata(uint256 tokenId, uint256 contribution) internal {
